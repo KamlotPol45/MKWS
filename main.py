@@ -2,22 +2,23 @@ import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Chemical mechanism
+# chemical mechanism
 gas = ct.Solution('gri30.yaml')
 
-# Initial conditions
+# initial conditions
 initial_temperature = 1200  # in Kelvin
 initial_pressure = 1.0 * ct.one_atm  # in Pascals
 
-# Equivalence ratios to consider
+# equivalence ratios to consider
 equivalence_ratios = np.linspace(0.1, 10.0, 50)
 
-# Lists to store the highest pressure, temperature, N2O, NO, and NO2 results
+# lists to store the highest pressure, temperature, N2O, NO, NO2, and CO results
 highest_temperatures = []
 highest_pressures = []
 n2o_concentrations = []
 no_concentrations = []
 no2_concentrations = []
+co_concentrations = []
 
 for equivalence_ratio in equivalence_ratios:
     # Initial state of the gas
@@ -40,6 +41,7 @@ for equivalence_ratio in equivalence_ratios:
     n2o = np.zeros(n_steps)
     no = np.zeros(n_steps)
     no2 = np.zeros(n_steps)
+    co = np.zeros(n_steps)
 
     # Perform the simulation
     for i in range(n_steps):
@@ -49,14 +51,16 @@ for equivalence_ratio in equivalence_ratios:
         n2o[i] = reactor.thermo['N2O'].X[0]
         no[i] = reactor.thermo['NO'].X[0]
         no2[i] = reactor.thermo['NO2'].X[0]
+        co[i] = reactor.thermo['CO'].X[0]
         simulator.step()
 
-    # Find the highest pressure, temperature, N2O, NO, and NO2
+    # Find the highest pressure, temperature, N2O, NO, NO2, and CO
     highest_temperature = np.max(temperature)
     highest_pressure = np.max(pressure)
     highest_n2o_concentration = np.max(n2o)
     highest_no_concentration = np.max(no)
     highest_no2_concentration = np.max(no2)
+    highest_co_concentration = np.max(co)
 
     # Store the results
     highest_temperatures.append(highest_temperature)
@@ -64,8 +68,9 @@ for equivalence_ratio in equivalence_ratios:
     n2o_concentrations.append(highest_n2o_concentration)
     no_concentrations.append(highest_no_concentration)
     no2_concentrations.append(highest_no2_concentration)
+    co_concentrations.append(highest_co_concentration)
 
-# Plots of the highest temperature, pressure, N2O, NO, and NO2 results
+# Plots of the highest temperature, pressure, N2O, NO, NO2, and CO results
 plt.figure()
 plt.plot(equivalence_ratios, highest_temperatures, marker='o')
 plt.xlabel('Equivalence Ratio')
@@ -95,5 +100,11 @@ plt.plot(equivalence_ratios, no2_concentrations, marker='o')
 plt.xlabel('Equivalence Ratio')
 plt.ylabel('NO2 Concentration')
 plt.title('NO2 Concentration vs. Equivalence Ratio')
+
+plt.figure()
+plt.plot(equivalence_ratios, co_concentrations, marker='o')
+plt.xlabel('Equivalence Ratio')
+plt.ylabel('CO Concentration')
+plt.title('CO Concentration vs. Equivalence Ratio')
 
 plt.show()
